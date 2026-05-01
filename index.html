@@ -1,79 +1,86 @@
-
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>冰島之旅 2025</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'DM Sans',sans-serif;}
-#app{background:var(--color-background-primary);}
-.header{padding:1.25rem 1.5rem 0.75rem;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:flex-end;justify-content:space-between;}
-.header h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--color-text-primary);}
-.header p{font-size:12px;color:var(--color-text-secondary);margin-top:2px;}
-.badge{font-size:11px;background:var(--color-background-success);color:var(--color-text-success);padding:4px 10px;border-radius:var(--border-radius-md);font-weight:500;}
+body{font-family:'DM Sans',sans-serif;background:#f5f5f3;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;}
+#app{background:#fff;border-radius:16px;overflow:hidden;width:100%;max-width:720px;box-shadow:0 2px 24px rgba(0,0,0,0.08);}
+.header{padding:1.25rem 1.5rem 0.75rem;border-bottom:1px solid #e8e8e4;display:flex;align-items:flex-end;justify-content:space-between;}
+.header h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:#1a1a18;}
+.header p{font-size:12px;color:#888;margin-top:2px;}
+.badge{font-size:11px;background:#EAF3DE;color:#3B6D11;padding:4px 10px;border-radius:8px;font-weight:500;white-space:nowrap;}
 .map-wrap{position:relative;width:100%;height:290px;overflow:hidden;background:#c2d8e4;}
 .map-svg{width:100%;height:100%;}
 .stop-marker{cursor:pointer;transition:transform 0.15s;}
 .stop-marker:hover{transform:scale(1.15);}
 .route-line{fill:none;stroke:#1D9E75;stroke-width:1.5;stroke-dasharray:5,4;opacity:0.7;}
-.main-tabs{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);padding:0 1.5rem;background:var(--color-background-primary);overflow-x:auto;}
-.main-tab{padding:0.65rem 1rem;font-size:13px;font-weight:500;cursor:pointer;color:var(--color-text-secondary);border-bottom:2px solid transparent;white-space:nowrap;}
-.main-tab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary);}
+.main-tabs{display:flex;border-bottom:1px solid #e8e8e4;padding:0 1.5rem;background:#fff;overflow-x:auto;}
+.main-tab{padding:0.65rem 1rem;font-size:13px;font-weight:500;cursor:pointer;color:#888;border-bottom:2px solid transparent;white-space:nowrap;transition:color 0.15s,border-color 0.15s;}
+.main-tab.active{color:#1a1a18;border-bottom-color:#1a1a18;}
 .panel{padding:1rem 1.5rem;}
-.panel-label{font-size:11px;color:var(--color-text-secondary);font-weight:500;letter-spacing:0.05em;margin-bottom:8px;}
+.panel-label{font-size:11px;color:#888;font-weight:500;letter-spacing:0.05em;margin-bottom:8px;}
 .stops-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:8px;}
-.stop-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 13px;cursor:pointer;border:0.5px solid var(--color-border-tertiary);transition:border-color 0.15s,background 0.15s;}
-.stop-card:hover,.stop-card.active{border-color:var(--color-border-info);background:var(--color-background-info);}
-.stop-card .day-lbl{font-size:11px;color:var(--color-text-secondary);font-weight:500;}
-.stop-card .city-nm{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-top:2px;font-family:'Playfair Display',serif;}
-.stop-card .sub{font-size:11px;color:var(--color-text-secondary);margin-top:3px;}
-.detail{margin-top:0.75rem;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;display:none;}
+.stop-card{background:#f5f5f3;border-radius:10px;padding:10px 13px;cursor:pointer;border:0.5px solid #e0e0dc;transition:border-color 0.15s,background 0.15s;}
+.stop-card:hover,.stop-card.active{border-color:#378ADD;background:#E6F1FB;}
+.stop-card .day-lbl{font-size:11px;color:#888;font-weight:500;}
+.stop-card .city-nm{font-size:14px;font-weight:500;color:#1a1a18;margin-top:2px;font-family:'Playfair Display',serif;}
+.stop-card .sub{font-size:11px;color:#888;margin-top:3px;}
+.detail{margin-top:0.75rem;border:0.5px solid #e0e0dc;border-radius:14px;overflow:hidden;display:none;}
 .detail.visible{display:block;}
-.detail-hdr{display:flex;align-items:center;gap:10px;padding:0.875rem 1.25rem;border-bottom:0.5px solid var(--color-border-tertiary);}
-.dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;background:var(--color-background-info);color:var(--color-text-info);}
-.dtitle{font-family:'Playfair Display',serif;font-size:17px;font-weight:400;color:var(--color-text-primary);}
-.ddate{font-size:12px;color:var(--color-text-secondary);margin-top:1px;}
-.sub-tabs{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);padding:0 1.25rem;background:var(--color-background-secondary);overflow-x:auto;}
-.sub-tab{padding:0.5rem 0.75rem;font-size:12px;font-weight:500;cursor:pointer;color:var(--color-text-secondary);border-bottom:2px solid transparent;white-space:nowrap;}
-.sub-tab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary);}
+.detail-hdr{display:flex;align-items:center;gap:10px;padding:0.875rem 1.25rem;border-bottom:0.5px solid #e0e0dc;}
+.dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;background:#E6F1FB;color:#185FA5;}
+.dtitle{font-family:'Playfair Display',serif;font-size:17px;font-weight:400;color:#1a1a18;}
+.ddate{font-size:12px;color:#888;margin-top:1px;}
+.sub-tabs{display:flex;border-bottom:0.5px solid #e0e0dc;padding:0 1.25rem;background:#f5f5f3;overflow-x:auto;}
+.sub-tab{padding:0.5rem 0.75rem;font-size:12px;font-weight:500;cursor:pointer;color:#888;border-bottom:2px solid transparent;white-space:nowrap;}
+.sub-tab.active{color:#1a1a18;border-bottom-color:#1a1a18;}
 .sub-panel{padding:1rem 1.25rem;display:none;}
 .sub-panel.visible{display:block;}
 .row-item{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;}
 .row-item:last-child{margin-bottom:0;}
 .ico{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px;}
-.ico.w{background:var(--color-background-info);color:var(--color-text-info);}
+.ico.w{background:#E6F1FB;color:#185FA5;}
 .ico.g{background:#faeeda;color:#633806;}
 .ico.ic{background:#e6f1fb;color:#042C53;}
 .ico.n{background:#EAF3DE;color:#173404;}
 .ico.c{background:#FBEAF0;color:#4B1528;}
 .ico.rs{background:#FAECE7;color:#993C1D;}
 .ico.sun{background:#faeeda;color:#633806;}
-.item-body .iname{font-size:12px;font-weight:500;color:var(--color-text-primary);}
-.item-body .idesc{font-size:11px;color:var(--color-text-secondary);margin-top:1px;}
+.item-body .iname{font-size:12px;font-weight:500;color:#1a1a18;}
+.item-body .idesc{font-size:11px;color:#888;margin-top:1px;}
 .must{font-size:9px;padding:1px 5px;background:#FAECE7;color:#993C1D;border-radius:3px;margin-left:4px;vertical-align:middle;}
 .summer{font-size:9px;padding:1px 5px;background:#EAF3DE;color:#3B6D11;border-radius:3px;margin-left:4px;vertical-align:middle;}
-.price{font-size:9px;padding:1px 5px;background:var(--color-background-secondary);color:var(--color-text-secondary);border-radius:3px;margin-left:4px;border:0.5px solid var(--color-border-tertiary);}
-.room-row{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;padding-bottom:8px;border-bottom:0.5px solid var(--color-border-tertiary);}
+.price{font-size:9px;padding:1px 5px;background:#f5f5f3;color:#888;border-radius:3px;margin-left:4px;border:0.5px solid #e0e0dc;}
+.room-row{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;padding-bottom:8px;border-bottom:0.5px solid #e0e0dc;}
 .room-row:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
-.room-addr{font-size:12px;color:var(--color-text-primary);}
-.room-sub{font-size:11px;color:var(--color-text-secondary);}
-.btag{font-size:10px;padding:2px 7px;border-radius:var(--border-radius-md);background:var(--color-background-success);color:var(--color-text-success);display:inline-block;margin-top:2px;}
-.note-bar{font-size:11px;color:var(--color-text-secondary);padding:8px 1.25rem;border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);}
-/* Tips */
+.room-addr{font-size:12px;color:#1a1a18;}
+.room-sub{font-size:11px;color:#888;}
+.btag{font-size:10px;padding:2px 7px;border-radius:8px;background:#EAF3DE;color:#3B6D11;display:inline-block;margin-top:2px;}
+.note-bar{font-size:11px;color:#888;padding:8px 1.25rem;border-top:0.5px solid #e0e0dc;background:#f5f5f3;}
 .tips-panel{padding:1rem 1.5rem;}
 .tip-section{margin-bottom:1.25rem;}
 .tip-section:last-child{margin-bottom:0;}
-.tip-title{font-size:12px;font-weight:500;color:var(--color-text-primary);letter-spacing:0.04em;margin-bottom:8px;padding-bottom:6px;border-bottom:0.5px solid var(--color-border-tertiary);}
+.tip-title{font-size:12px;font-weight:500;color:#1a1a18;letter-spacing:0.04em;margin-bottom:8px;padding-bottom:6px;border-bottom:0.5px solid #e0e0dc;}
 .tip-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:7px;}
 .tip-row:last-child{margin-bottom:0;}
 .tico{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px;}
 .tico.warn{background:#FAECE7;color:#993C1D;}
 .tico.ok{background:#EAF3DE;color:#173404;}
-.tico.info{background:var(--color-background-info);color:var(--color-text-info);}
-.tip-text{font-size:12px;color:var(--color-text-primary);}
-.tip-text span{color:var(--color-text-secondary);font-size:11px;display:block;margin-top:1px;}
+.tico.info{background:#E6F1FB;color:#185FA5;}
+.tip-text{font-size:12px;color:#1a1a18;}
+.tip-text span{color:#888;font-size:11px;display:block;margin-top:1px;}
 .app-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
-.app-chip{font-size:11px;padding:4px 10px;border-radius:var(--border-radius-md);background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);font-weight:500;}
+.app-chip{font-size:11px;padding:4px 10px;border-radius:8px;background:#f5f5f3;border:0.5px solid #e0e0dc;color:#1a1a18;font-weight:500;}
 .map-label{font-size:8.5px;fill:#0C447C;font-weight:500;font-family:'DM Sans',sans-serif;pointer-events:none;}
+@media(max-width:480px){.stops-grid{grid-template-columns:1fr 1fr;}.header{flex-direction:column;align-items:flex-start;gap:8px;}}
 </style>
-
+</head>
+<body>
 <div id="app">
   <div class="header">
     <div>
@@ -99,14 +106,14 @@ body{font-family:'DM Sans',sans-serif;}
       <g class="stop-marker" onclick="sel(4)"><circle cx="445" cy="127" r="11" fill="#185FA5" stroke="white" stroke-width="2"/><text x="445" y="131" text-anchor="middle" fill="white" font-size="9" font-weight="500" font-family="DM Sans,sans-serif">5</text><text class="map-label" x="452" y="122">Eiðar</text></g>
       <g class="stop-marker" onclick="sel(5)"><circle cx="430" cy="212" r="11" fill="#185FA5" stroke="white" stroke-width="2"/><text x="430" y="216" text-anchor="middle" fill="white" font-size="9" font-weight="500" font-family="DM Sans,sans-serif">6</text><text class="map-label" x="437" y="208">Höfn</text></g>
       <g class="stop-marker" onclick="sel(6)"><circle cx="255" cy="220" r="11" fill="#185FA5" stroke="white" stroke-width="2"/><text x="255" y="224" text-anchor="middle" fill="white" font-size="9" font-weight="500" font-family="DM Sans,sans-serif">7</text><text class="map-label" x="228" y="236">塞爾福斯</text></g>
-      <rect x="552" y="10" width="116" height="50" rx="6" fill="white" fill-opacity="0.88" stroke="#b0c8b0" stroke-width="0.5"/>
+      <rect x="552" y="10" width="116" height="50" rx="6" fill="white" fill-opacity="0.92" stroke="#b0c8b0" stroke-width="0.5"/>
       <circle cx="565" cy="25" r="5" fill="#0F6E56"/><text x="574" y="29" font-size="8.5" fill="#0C447C" font-family="DM Sans,sans-serif" font-weight="500">起訖（雷克雅維克）</text>
       <circle cx="565" cy="42" r="5" fill="#185FA5"/><text x="574" y="46" font-size="8.5" fill="#0C447C" font-family="DM Sans,sans-serif" font-weight="500">住宿地點</text>
     </svg>
   </div>
 
   <div class="main-tabs">
-    <div class="main-tab active" onclick="switchMain('stops')">住宿 & 景點</div>
+    <div class="main-tab active" onclick="switchMain('stops')">住宿 &amp; 景點</div>
     <div class="main-tab" onclick="switchMain('tips')">注意事項</div>
   </div>
 
@@ -149,7 +156,7 @@ body{font-family:'DM Sans',sans-serif;}
         <div class="tip-row"><div class="tico ok">✓</div><div class="tip-text">緊急電話：112（無 SIM 卡也可撥）<span>在 SafeTravel.is 登記每日行程計劃</span></div></div>
       </div>
       <div class="tip-section">
-        <div class="tip-title">消費 & 生活</div>
+        <div class="tip-title">消費 &amp; 生活</div>
         <div class="tip-row"><div class="tico info">i</div><div class="tip-text">物價很高，主菜約台幣 700–1500 元<span>Bonus 超市最便宜，可自備食材省錢</span></div></div>
         <div class="tip-row"><div class="tico info">i</div><div class="tip-text">全程刷卡，幾乎不需要現金<span>加油站 24 小時，自助刷卡加油</span></div></div>
         <div class="tip-row"><div class="tico warn">!</div><div class="tip-text">熱門餐廳務必提前訂位，旺季常客滿<span>Dill、Fish Company、Otto、Fjörubordid 都要預約</span></div></div>
@@ -171,7 +178,7 @@ const stops=[
      {ic:"sun",name:"海港賞海雀（Puffin）船遊",desc:"6月繁殖季，港口出發 15 分鐘到海雀島",summer:true,must:true},
      {ic:"sun",name:"午夜陽光攝影",desc:"6/21 前後幾乎不天黑，深夜出門拍黃金光",summer:true,must:true},
      {ic:"sun",name:"Nauthólsvík 地熱海灘",desc:"夏季限定！海水游泳 + 旁邊熱水池，免費",summer:true},
-     {ic:"sun",name:"Secret Solstice 音樂節",desc:"夏至前後在雷克雅維克舉行（6/19–22），若遇上必去",summer:true},
+     {ic:"sun",name:"Secret Solstice 音樂節",desc:"夏至前後舉行（6/19–22），若遇上必去",summer:true},
      {ic:"c",name:"國家博物館 / 維京船博物館",desc:"雨天備案，了解冰島歷史"},
      {ic:"n",name:"Laugardalslaug 溫泉泳池",desc:"冰島人日常，露天熱水池體驗"}
    ],
@@ -238,7 +245,7 @@ const stops=[
      {ic:"sun",name:"東部峽灣公路兜風",desc:"夏季限定！全線開通，蜿蜒海岸線風景如畫",summer:true,must:true},
      {ic:"n",name:"Stuðlagil 玄武岩峽谷",desc:"藍綠色河流穿越黑石柱，近年最熱門秘境",must:true},
      {ic:"sun",name:"Seyðisfjörður 彩虹小鎮",desc:"夏季限定！彩色小鎮，7月 LungA 藝術節",summer:true,must:true},
-     {ic:"sun",name:"Borgarfjörður Eystri 海雀棲地",desc:"夏季限定！東部最易看海雀的地方，距離超近",summer:true,must:true},
+     {ic:"sun",name:"Borgarfjörður Eystri 海雀棲地",desc:"夏季限定！東部最易看海雀，距離超近",summer:true,must:true},
      {ic:"n",name:"Lagarfljót 蛇湖",desc:"冰島版尼斯湖怪傳說發源地"}
    ],
    restaurants:[
@@ -302,8 +309,8 @@ function sel(i){
 
 function switchSub(i,t){
   subTab[i]=t;
-  document.querySelectorAll(`.stab-${i}`).forEach(el=>el.classList.toggle('active',el.dataset.t===t));
-  document.querySelectorAll(`.spanel-${i}`).forEach(el=>el.classList.toggle('visible',el.dataset.t===t));
+  document.querySelectorAll('.stab-'+i).forEach(el=>el.classList.toggle('active',el.dataset.t===t));
+  document.querySelectorAll('.spanel-'+i).forEach(el=>el.classList.toggle('visible',el.dataset.t===t));
 }
 
 function renderGrid(){
@@ -367,3 +374,5 @@ function renderDetail(){
 
 renderGrid();
 </script>
+</body>
+</html>
