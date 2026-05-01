@@ -1,0 +1,369 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;}
+#app{background:var(--color-background-primary);}
+.header{padding:1.25rem 1.5rem 0.75rem;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:flex-end;justify-content:space-between;}
+.header h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--color-text-primary);}
+.header p{font-size:12px;color:var(--color-text-secondary);margin-top:2px;}
+.badge{font-size:11px;background:var(--color-background-success);color:var(--color-text-success);padding:4px 10px;border-radius:var(--border-radius-md);font-weight:500;}
+.map-wrap{position:relative;width:100%;height:290px;overflow:hidden;background:#c2d8e4;}
+.map-svg{width:100%;height:100%;}
+.stop-marker{cursor:pointer;transition:transform 0.15s;}
+.stop-marker:hover{transform:scale(1.15);}
+.route-line{fill:none;stroke:#1D9E75;stroke-width:1.5;stroke-dasharray:5,4;opacity:0.7;}
+.main-tabs{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);padding:0 1.5rem;background:var(--color-background-primary);overflow-x:auto;}
+.main-tab{padding:0.65rem 1rem;font-size:13px;font-weight:500;cursor:pointer;color:var(--color-text-secondary);border-bottom:2px solid transparent;white-space:nowrap;}
+.main-tab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary);}
+.panel{padding:1rem 1.5rem;}
+.panel-label{font-size:11px;color:var(--color-text-secondary);font-weight:500;letter-spacing:0.05em;margin-bottom:8px;}
+.stops-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:8px;}
+.stop-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 13px;cursor:pointer;border:0.5px solid var(--color-border-tertiary);transition:border-color 0.15s,background 0.15s;}
+.stop-card:hover,.stop-card.active{border-color:var(--color-border-info);background:var(--color-background-info);}
+.stop-card .day-lbl{font-size:11px;color:var(--color-text-secondary);font-weight:500;}
+.stop-card .city-nm{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-top:2px;font-family:'Playfair Display',serif;}
+.stop-card .sub{font-size:11px;color:var(--color-text-secondary);margin-top:3px;}
+.detail{margin-top:0.75rem;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;display:none;}
+.detail.visible{display:block;}
+.detail-hdr{display:flex;align-items:center;gap:10px;padding:0.875rem 1.25rem;border-bottom:0.5px solid var(--color-border-tertiary);}
+.dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;background:var(--color-background-info);color:var(--color-text-info);}
+.dtitle{font-family:'Playfair Display',serif;font-size:17px;font-weight:400;color:var(--color-text-primary);}
+.ddate{font-size:12px;color:var(--color-text-secondary);margin-top:1px;}
+.sub-tabs{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);padding:0 1.25rem;background:var(--color-background-secondary);overflow-x:auto;}
+.sub-tab{padding:0.5rem 0.75rem;font-size:12px;font-weight:500;cursor:pointer;color:var(--color-text-secondary);border-bottom:2px solid transparent;white-space:nowrap;}
+.sub-tab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary);}
+.sub-panel{padding:1rem 1.25rem;display:none;}
+.sub-panel.visible{display:block;}
+.row-item{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;}
+.row-item:last-child{margin-bottom:0;}
+.ico{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px;}
+.ico.w{background:var(--color-background-info);color:var(--color-text-info);}
+.ico.g{background:#faeeda;color:#633806;}
+.ico.ic{background:#e6f1fb;color:#042C53;}
+.ico.n{background:#EAF3DE;color:#173404;}
+.ico.c{background:#FBEAF0;color:#4B1528;}
+.ico.rs{background:#FAECE7;color:#993C1D;}
+.ico.sun{background:#faeeda;color:#633806;}
+.item-body .iname{font-size:12px;font-weight:500;color:var(--color-text-primary);}
+.item-body .idesc{font-size:11px;color:var(--color-text-secondary);margin-top:1px;}
+.must{font-size:9px;padding:1px 5px;background:#FAECE7;color:#993C1D;border-radius:3px;margin-left:4px;vertical-align:middle;}
+.summer{font-size:9px;padding:1px 5px;background:#EAF3DE;color:#3B6D11;border-radius:3px;margin-left:4px;vertical-align:middle;}
+.price{font-size:9px;padding:1px 5px;background:var(--color-background-secondary);color:var(--color-text-secondary);border-radius:3px;margin-left:4px;border:0.5px solid var(--color-border-tertiary);}
+.room-row{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;padding-bottom:8px;border-bottom:0.5px solid var(--color-border-tertiary);}
+.room-row:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
+.room-addr{font-size:12px;color:var(--color-text-primary);}
+.room-sub{font-size:11px;color:var(--color-text-secondary);}
+.btag{font-size:10px;padding:2px 7px;border-radius:var(--border-radius-md);background:var(--color-background-success);color:var(--color-text-success);display:inline-block;margin-top:2px;}
+.note-bar{font-size:11px;color:var(--color-text-secondary);padding:8px 1.25rem;border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);}
+/* Tips */
+.tips-panel{padding:1rem 1.5rem;}
+.tip-section{margin-bottom:1.25rem;}
+.tip-section:last-child{margin-bottom:0;}
+.tip-title{font-size:12px;font-weight:500;color:var(--color-text-primary);letter-spacing:0.04em;margin-bottom:8px;padding-bottom:6px;border-bottom:0.5px solid var(--color-border-tertiary);}
+.tip-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:7px;}
+.tip-row:last-child{margin-bottom:0;}
+.tico{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px;}
+.tico.warn{background:#FAECE7;color:#993C1D;}
+.tico.ok{background:#EAF3DE;color:#173404;}
+.tico.info{background:var(--color-background-info);color:var(--color-text-info);}
+.tip-text{font-size:12px;color:var(--color-text-primary);}
+.tip-text span{color:var(--color-text-secondary);font-size:11px;display:block;margin-top:1px;}
+.app-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.app-chip{font-size:11px;padding:4px 10px;border-radius:var(--border-radius-md);background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);font-weight:500;}
+.map-label{font-size:8.5px;fill:#0C447C;font-weight:500;font-family:'DM Sans',sans-serif;pointer-events:none;}
+</style>
+
+<div id="app">
+  <div class="header">
+    <div>
+      <h1>冰島之旅 2025 ☀</h1>
+      <p>Jun 25 — Jul 6 · 11 天 · 夏季環島</p>
+    </div>
+    <span class="badge">夏季限定版</span>
+  </div>
+
+  <div class="map-wrap">
+    <svg class="map-svg" viewBox="0 0 680 290" xmlns="http://www.w3.org/2000/svg">
+      <path d="M155,155 L160,135 L170,122 L185,110 L200,102 L218,94 L235,90 L250,88 L268,90 L285,92 L302,90 L318,88 L335,90 L350,94 L362,100 L375,104 L388,107 L400,110 L412,112 L425,110 L438,104 L450,97 L462,94 L472,97 L480,104 L485,112 L488,122 L490,132 L492,144 L490,157 L488,170 L484,182 L478,194 L470,204 L460,212 L448,217 L435,220 L422,222 L408,224 L392,222 L378,220 L362,220 L348,224 L335,230 L320,234 L305,234 L290,230 L275,227 L260,224 L245,224 L228,222 L212,218 L198,210 L185,200 L172,188 L162,175 L155,155Z" fill="#dce8dc" stroke="#b0c8b0" stroke-width="1"/>
+      <path d="M155,155 L148,162 L145,170 L148,178 L155,182 L165,180 L170,173 L168,164 L160,158Z" fill="#dce8dc" stroke="#b0c8b0" stroke-width="1"/>
+      <path d="M218,94 L210,87 L200,80 L192,77 L185,80 L182,88 L188,94 L200,94 L210,94Z" fill="#dce8dc" stroke="#b0c8b0" stroke-width="1"/>
+      <path d="M200,80 L195,70 L192,62 L195,56 L202,54 L210,58 L212,68 L208,77Z" fill="#dce8dc" stroke="#b0c8b0" stroke-width="1"/>
+      <path d="M185,110 L175,112 L162,115 L155,122 L158,130 L168,130 L178,126 L186,120Z" fill="#dce8dc" stroke="#b0c8b0" stroke-width="1"/>
+      <ellipse cx="330" cy="168" rx="55" ry="30" fill="#c8d8c8" opacity="0.4"/>
+      <polyline class="route-line" points="195,157 175,120 285,100 355,100 445,127 430,212 255,220 195,157"/>
+      <g class="stop-marker" onclick="sel(0)"><circle cx="195" cy="157" r="11" fill="#0F6E56" stroke="white" stroke-width="2"/><text x="195" y="161" text-anchor="middle" fill="white" font-size="9" font-weight="500" font-family="DM Sans,sans-serif">1</text><text class="map-label" x="207" y="162">雷克雅維克</text></g>
+      <g class="stop-marker" onclick="sel(1)"><circle cx="175" cy="120" r="11" fill="#185FA5" stroke="white" stroke-width="2"/><text x="175" y="124" text-anchor="middle" fill="white" font-size="9" font-weight="500" font-family="DM Sans,sans-serif">2</text><text class="map-label" x="147" y="112">Grundarfjörður</text></g>
+      <g class="stop-marker" onclick="sel(2)"><circle cx="285" cy="100" r="11" fill="#185FA5" stroke="white" stroke-width="2"/><text x="285" y="104" text-anchor="middle" fill="white" font-size="9" font-weight="500" font-family="DM Sans,sans-serif">3</text><text class="map-label" x="286" y="90">Hólar</text></g>
+      <g class="stop-marker" onclick="sel(3)"><circle cx="355" cy="100" r="11" fill="#185FA5" stroke="white" stroke-width="2"/><text x="355" y="104" text-anchor="middle" fill="white" font-size="9" font-weight="500" font-family="DM Sans,sans-serif">4</text><text class="map-label" x="356" y="90">阿克雷里</text></g>
+      <g class="stop-marker" onclick="sel(4)"><circle cx="445" cy="127" r="11" fill="#185FA5" stroke="white" stroke-width="2"/><text x="445" y="131" text-anchor="middle" fill="white" font-size="9" font-weight="500" font-family="DM Sans,sans-serif">5</text><text class="map-label" x="452" y="122">Eiðar</text></g>
+      <g class="stop-marker" onclick="sel(5)"><circle cx="430" cy="212" r="11" fill="#185FA5" stroke="white" stroke-width="2"/><text x="430" y="216" text-anchor="middle" fill="white" font-size="9" font-weight="500" font-family="DM Sans,sans-serif">6</text><text class="map-label" x="437" y="208">Höfn</text></g>
+      <g class="stop-marker" onclick="sel(6)"><circle cx="255" cy="220" r="11" fill="#185FA5" stroke="white" stroke-width="2"/><text x="255" y="224" text-anchor="middle" fill="white" font-size="9" font-weight="500" font-family="DM Sans,sans-serif">7</text><text class="map-label" x="228" y="236">塞爾福斯</text></g>
+      <rect x="552" y="10" width="116" height="50" rx="6" fill="white" fill-opacity="0.88" stroke="#b0c8b0" stroke-width="0.5"/>
+      <circle cx="565" cy="25" r="5" fill="#0F6E56"/><text x="574" y="29" font-size="8.5" fill="#0C447C" font-family="DM Sans,sans-serif" font-weight="500">起訖（雷克雅維克）</text>
+      <circle cx="565" cy="42" r="5" fill="#185FA5"/><text x="574" y="46" font-size="8.5" fill="#0C447C" font-family="DM Sans,sans-serif" font-weight="500">住宿地點</text>
+    </svg>
+  </div>
+
+  <div class="main-tabs">
+    <div class="main-tab active" onclick="switchMain('stops')">住宿 & 景點</div>
+    <div class="main-tab" onclick="switchMain('tips')">注意事項</div>
+  </div>
+
+  <div id="stops-section">
+    <div class="panel">
+      <div class="panel-label">點選地點查看詳情 · 綠色標籤為夏季限定體驗</div>
+      <div class="stops-grid" id="stops-grid"></div>
+      <div class="detail" id="detail"></div>
+    </div>
+  </div>
+
+  <div id="tips-section" style="display:none;">
+    <div class="tips-panel">
+      <div class="tip-section">
+        <div class="tip-title">必裝 APP</div>
+        <div class="app-row">
+          <span class="app-chip">SafeTravel.is</span>
+          <span class="app-chip">Road.is（路況）</span>
+          <span class="app-chip">Vedur.is（天氣）</span>
+          <span class="app-chip">112 Iceland（緊急）</span>
+          <span class="app-chip">Google Maps 離線</span>
+        </div>
+      </div>
+      <div class="tip-section">
+        <div class="tip-title">開車規定</div>
+        <div class="tip-row"><div class="tico warn">!</div><div class="tip-text">永遠開大燈，法律規定，白天也要<span>違規罰款重，租車公司直接從信用卡扣</span></div></div>
+        <div class="tip-row"><div class="tico warn">!</div><div class="tip-text">限速：市區 50 / 礫石路 80 / 柏油路 90 km/h<span>測速照相全島皆有，切勿超速</span></div></div>
+        <div class="tip-row"><div class="tico warn">!</div><div class="tip-text">禁止越野行駛，重罰且保險失效<span>即使為了拍照，絕對不能離開標示道路</span></div></div>
+        <div class="tip-row"><div class="tico warn">!</div><div class="tip-text">酒精容忍度幾乎零（0.02% BAC）<span>喝酒絕對不開車，一杯就超標</span></div></div>
+        <div class="tip-row"><div class="tico info">i</div><div class="tip-text">單線橋很常見，先到者先行<span>看到黃色菱形警示牌就減速禮讓</span></div></div>
+        <div class="tip-row"><div class="tico ok">✓</div><div class="tip-text">從柏油路換礫石路前先減速，不要在礫石上踩煞車<span>轉換路面時輪胎容易甩尾</span></div></div>
+        <div class="tip-row"><div class="tico ok">✓</div><div class="tip-text">遇到羊群、馬群要慢慢等，不要按喇叭<span>小羊可能突然橫衝直撞</span></div></div>
+      </div>
+      <div class="tip-section">
+        <div class="tip-title">夏季特別注意</div>
+        <div class="tip-row"><div class="tico warn">!</div><div class="tip-text">午夜陽光讓人忘記時間，6/21 前後幾乎 24 小時亮<span>務必設鬧鐘睡覺，避免疲勞駕駛，帶眼罩</span></div></div>
+        <div class="tip-row"><div class="tico warn">!</div><div class="tip-text">海岸邊浪很大，Reynisfjara 黑沙灘尤其危險<span>不要背對海浪，與浪保持至少 30 公尺</span></div></div>
+        <div class="tip-row"><div class="tico info">i</div><div class="tip-text">六月即使是夏天，北部仍可能強風或下雪<span>出發前查 vedur.is，橙/紅色警報就改計劃</span></div></div>
+        <div class="tip-row"><div class="tico ok">✓</div><div class="tip-text">穿著分層：防風外層 + 保暖中層 + 排汗底層<span>均溫 10–13°C，風起來體感很冷</span></div></div>
+        <div class="tip-row"><div class="tico ok">✓</div><div class="tip-text">緊急電話：112（無 SIM 卡也可撥）<span>在 SafeTravel.is 登記每日行程計劃</span></div></div>
+      </div>
+      <div class="tip-section">
+        <div class="tip-title">消費 & 生活</div>
+        <div class="tip-row"><div class="tico info">i</div><div class="tip-text">物價很高，主菜約台幣 700–1500 元<span>Bonus 超市最便宜，可自備食材省錢</span></div></div>
+        <div class="tip-row"><div class="tico info">i</div><div class="tip-text">全程刷卡，幾乎不需要現金<span>加油站 24 小時，自助刷卡加油</span></div></div>
+        <div class="tip-row"><div class="tico warn">!</div><div class="tip-text">熱門餐廳務必提前訂位，旺季常客滿<span>Dill、Fish Company、Otto、Fjörubordid 都要預約</span></div></div>
+        <div class="tip-row"><div class="tico ok">✓</div><div class="tip-text">自來水可直接飲用，帶可重複使用水壺<span>路上隨時補充，省錢又環保</span></div></div>
+        <div class="tip-row"><div class="tico warn">!</div><div class="tip-text">熱水有硫磺味（地熱），正常現象<span>喝水用冷水，熱水味道正常</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const stops=[
+  {id:0,city:"雷克雅維克",dates:"6/25–6/26 & 7/3–7/6",nights:"1+3晚",
+   rooms:[{label:"首晚",addr:"Rauðarárstígur 31",beds:"待確認",booker:"冠豪"},{label:"尾段",addr:"Laugavegur 139, 105",beds:"待確認",booker:"止觀"}],
+   note:"冰島首都，出發與返程基地",
+   sights:[
+     {ic:"c",name:"Hallgrímskirkja 教堂 + 登頂",desc:"標誌性尖頂，搭電梯上頂俯瞰全城",must:true},
+     {ic:"c",name:"Harpa 音樂廳",desc:"玻璃幾何建築，海灣旁必看"},
+     {ic:"sun",name:"海港賞海雀（Puffin）船遊",desc:"6月繁殖季，港口出發 15 分鐘到海雀島",summer:true,must:true},
+     {ic:"sun",name:"午夜陽光攝影",desc:"6/21 前後幾乎不天黑，深夜出門拍黃金光",summer:true,must:true},
+     {ic:"sun",name:"Nauthólsvík 地熱海灘",desc:"夏季限定！海水游泳 + 旁邊熱水池，免費",summer:true},
+     {ic:"sun",name:"Secret Solstice 音樂節",desc:"夏至前後在雷克雅維克舉行（6/19–22），若遇上必去",summer:true},
+     {ic:"c",name:"國家博物館 / 維京船博物館",desc:"雨天備案，了解冰島歷史"},
+     {ic:"n",name:"Laugardalslaug 溫泉泳池",desc:"冰島人日常，露天熱水池體驗"}
+   ],
+   restaurants:[
+     {ico:"rs",name:"Fiskfélagið（Fish Company）",desc:"老牌海鮮名店，Around Iceland 套餐必點",price:"$$$",must:true},
+     {ico:"rs",name:"Bæjarins Beztu Pylsur",desc:"必吃熱狗攤，叫 Ein með öllu 全配版",price:"$",must:true},
+     {ico:"rs",name:"Dill Restaurant",desc:"冰島唯一米其林一星，新北歐料理，需提前訂",price:"$$$$"},
+     {ico:"rs",name:"Grillmarkaðurinn",desc:"頂級牛排館，羊排和肋眼超推",price:"$$$"},
+     {ico:"rs",name:"Skál!",desc:"潮流小館，羊肉韃靼 + 自然酒",price:"$$"}
+   ]},
+  {id:1,city:"Grundarfjörður",dates:"6/26–6/27",nights:"1晚",
+   rooms:[{label:"房間A",addr:"Grundarrétt 351",beds:"2單人+1雙人",booker:"冠豪"},{label:"房間B",addr:"Innri Látravík 351",beds:"2單人+1雙人",booker:"冠豪"}],
+   note:"Snæfellsnes 半島，夏季野生動物天堂",
+   sights:[
+     {ic:"n",name:"Kirkjufell 教會山",desc:"最上鏡的山，夏季可挑戰登頂",must:true},
+     {ic:"w",name:"Kirkjufellsfoss 瀑布",desc:"教會山前小瀑，絕配構圖",must:true},
+     {ic:"sun",name:"Ytri Tunga 海豹海灘",desc:"夏季限定！六月海豹曬太陽，可近距離觀察",summer:true,must:true},
+     {ic:"sun",name:"Snæfellsjökull 冰川健行",desc:"夏季冰川導覽開放，走上冰川頂端",summer:true,must:true},
+     {ic:"sun",name:"騎冰島馬（Horseback Riding）",desc:"夏季最佳體驗，沿熔岩原野或瀑布旁騎行",summer:true},
+     {ic:"n",name:"Djúpalónssandur 黑沙灘",desc:"玄武岩海岸，力石測試體力"},
+     {ic:"n",name:"Arnarstapi 海岸步道",desc:"夏季野花盛開，玄武岩拱門，2 公里海濱步行"}
+   ],
+   restaurants:[
+     {ico:"rs",name:"Bjargarsteinn Mathús",desc:"Grundarfjörður 最佳，新鮮海鮮配當地食材",price:"$$",must:true},
+     {ico:"rs",name:"Sjávarpakkhúsið（Stykkishólmur）",desc:"百年魚倉改建，Stykkishólmur 鎮上值得繞道",price:"$$"}
+   ]},
+  {id:2,city:"Hólar",dates:"6/27–6/28",nights:"1晚",
+   rooms:[{label:"房間A",addr:"Brúsabyggð 14",beds:"2單人+1雙人",booker:"Erin"},{label:"房間B",addr:"Nátthagi 22, 551",beds:"2單人+1雙人",booker:"Erin"}],
+   note:"北部歷史小鎮，途中景點豐富",
+   sights:[
+     {ic:"c",name:"Hólar 大教堂",desc:"冰島最古老紅磚教堂，12世紀"},
+     {ic:"w",name:"Kolugljúfur 峽谷瀑布",desc:"途中隱藏峽谷，必停拍照",must:true},
+     {ic:"g",name:"Hvítserkur 玄武岩海岬",desc:"形如犀牛的奇岩，退潮時可繞到後方",must:true},
+     {ic:"sun",name:"Vatnsnes 半島賞海豹",desc:"夏季限定！冰島近距離看海豹最佳點",summer:true,must:true},
+     {ic:"sun",name:"Siglufjörður 鯡魚小鎮",desc:"夏季限定！最北漁港，鯡魚博物館，風景極美",summer:true}
+   ],
+   restaurants:[
+     {ico:"rs",name:"Strikið（阿克雷里，提前到）",desc:"五樓峽灣景觀餐廳，提早抵達可先用晚餐",price:"$$"},
+     {ico:"rs",name:"Baccalá Bar（Hauganes）",desc:"維京船造型門廊，新鮮鹽漬鱈魚",price:"$"}
+   ]},
+  {id:3,city:"阿克雷里",dates:"6/28–6/29",nights:"1晚",
+   rooms:[{label:"房間A",addr:"蘿拉別墅",beds:"雙人床×2",booker:"止觀"},{label:"房間B",addr:"LL properties",beds:"雙人床×2",booker:"冠豪"}],
+   note:"北部最大城，景點超多，建議早出發",
+   sights:[
+     {ic:"w",name:"Goðafoss 神瀑",desc:"眾神瀑布，寬闊壯麗，環島必停",must:true},
+     {ic:"g",name:"Mývatn 米湖",desc:"地熱湖泊，火山地貌奇觀",must:true},
+     {ic:"g",name:"Námaskarð 硫磺地熱區",desc:"泥漿池沸騰，火星地貌",must:true},
+     {ic:"w",name:"Dettifoss 歐洲最強瀑布",desc:"震撼人心，西側柏油路較好走",must:true},
+     {ic:"sun",name:"Húsavík 賞鯨之旅",desc:"夏季限定！全球最佳賞鯨地，6月大翅鯨高峰",summer:true,must:true},
+     {ic:"sun",name:"Earth Lagoon（原 Mývatn Nature Baths）",desc:"夏季限定！北部版藍湖，米湖旁地熱溫泉",summer:true,must:true},
+     {ic:"g",name:"Krafla 火山口 + Viti 火口湖",desc:"活火山區，藍綠色火口湖"},
+     {ic:"sun",name:"Ásbyrgi 馬蹄形峽谷",desc:"夏季開放！北歐神話的奧丁坐騎足跡，森林步道",summer:true}
+   ],
+   restaurants:[
+     {ico:"rs",name:"Rub 23",desc:"阿克雷里必去！冰島 wasabi 壽司 + 炭烤海鮮，需訂位",price:"$$$",must:true},
+     {ico:"rs",name:"Strikið",desc:"五樓景觀套餐，冰島食材，氣氛超好",price:"$$$",must:true},
+     {ico:"rs",name:"Bautinn",desc:"百年木屋，豐盛份量傳統羊肉燉菜",price:"$$"},
+     {ico:"rs",name:"Brynja 冰淇淋",desc:"1939年傳奇冰淇淋，神秘配方，當地人必去",price:"$"}
+   ]},
+  {id:4,city:"Eiðar",dates:"6/29–6/30",nights:"1晚",
+   rooms:[{label:"房間A",addr:"Eiðar, Múlaþing 701",beds:"雙人床×2",booker:"止觀"},{label:"房間B",addr:"Eiðar, Múlaþing 701",beds:"雙人床×2",booker:"冠豪"}],
+   note:"東部峽灣，夏季才能完整探索",
+   sights:[
+     {ic:"sun",name:"東部峽灣公路兜風",desc:"夏季限定！全線開通，蜿蜒海岸線風景如畫",summer:true,must:true},
+     {ic:"n",name:"Stuðlagil 玄武岩峽谷",desc:"藍綠色河流穿越黑石柱，近年最熱門秘境",must:true},
+     {ic:"sun",name:"Seyðisfjörður 彩虹小鎮",desc:"夏季限定！彩色小鎮，7月 LungA 藝術節",summer:true,must:true},
+     {ic:"sun",name:"Borgarfjörður Eystri 海雀棲地",desc:"夏季限定！東部最易看海雀的地方，距離超近",summer:true,must:true},
+     {ic:"n",name:"Lagarfljót 蛇湖",desc:"冰島版尼斯湖怪傳說發源地"}
+   ],
+   restaurants:[
+     {ico:"rs",name:"Randulffssjóhús（Eskifjörður）",desc:"1890年魚廠改建，海景海鮮，超有氣氛",price:"$$",must:true},
+     {ico:"rs",name:"Salt Café（Egilsstaðir）",desc:"東部大城，披薩和鱈魚舌都好吃",price:"$"}
+   ]},
+  {id:5,city:"Höfn",dates:"6/30–7/1",nights:"1晚",
+   rooms:[{label:"全團",addr:"The GreyHouse, Höfn",beds:"待確認",booker:"冠豪"}],
+   note:"赫本港城，冰川與冰河湖體驗基地",
+   sights:[
+     {ic:"ic",name:"Jökulsárlón 冰河湖",desc:"冰島最壯觀景點，冰山漂浮藍湖",must:true},
+     {ic:"ic",name:"Diamond Beach 鑽石沙灘",desc:"黑沙上的透明冰塊，極致美景",must:true},
+     {ic:"sun",name:"冰河湖獨木舟 / 快艇",desc:"夏季限定！在冰山之間划船或快艇穿行",summer:true,must:true},
+     {ic:"sun",name:"Skaftafell 冰川健行",desc:"夏季開放！走進 Vatnajökull，導覽員帶路上冰",summer:true,must:true},
+     {ic:"w",name:"Svartifoss 黑瀑布",desc:"玄武岩柱環繞，Skaftafell 內步行可到"},
+     {ic:"sun",name:"Vestrahorn 黑色山峰",desc:"夏季絕景！沿岸倒影 + 黑沙灘，攝影聖地",summer:true}
+   ],
+   restaurants:[
+     {ico:"rs",name:"Otto Matur & Drykkur",desc:"Höfn 最佳！龍蝦湯和烤鮮魚，港城最老建築",price:"$$$",must:true},
+     {ico:"rs",name:"Ísshúsið Pizzeria",desc:"冰屋改建披薩店，冰河湖回來後的輕鬆晚餐",price:"$$"}
+   ]},
+  {id:6,city:"塞爾福斯",dates:"7/1–7/3",nights:"2晚",
+   rooms:[{label:"全團",addr:"9 Brekkur, Selfoss 805",beds:"待確認",booker:"冠豪"}],
+   note:"南部黃金圈，景點最密集，住兩晚剛剛好",
+   sights:[
+     {ic:"w",name:"Seljalandsfoss 瀑布",desc:"走進瀑布後方，全球唯一體驗",must:true},
+     {ic:"w",name:"Skógafoss 瀑布",desc:"62m高，彩虹常駐，登頂看全景",must:true},
+     {ic:"n",name:"Reynisfjara 黑沙灘 + Vík",desc:"玄武岩柱 + 夏季海雀棲地（海浪危險！）",must:true},
+     {ic:"g",name:"Geysir 間歇泉",desc:"Strokkur 每 5–10 分鐘噴發",must:true},
+     {ic:"w",name:"Gullfoss 黃金瀑布",desc:"雙層大瀑布，夏季水量最大",must:true},
+     {ic:"c",name:"Þingvellir 國家公園",desc:"冰島議會遺址 + 北美歐亞板塊交界",must:true},
+     {ic:"sun",name:"Silfra 裂縫浮潛 / 潛水",desc:"夏季限定！兩大板塊之間游泳，世界唯一",summer:true,must:true},
+     {ic:"sun",name:"Þríhnúkagígur 火山口下降",desc:"夏季限定！下降到休眠火山內部，全球唯一",summer:true},
+     {ic:"sun",name:"Sólheimasandur 飛機殘骸",desc:"夏季有接駁車！DC-3 軍機殘骸在黑沙灘上",summer:true},
+     {ic:"sun",name:"Fridheimar 番茄溫室餐廳",desc:"夏季最旺！黃金圈旁，在溫室裡吃番茄湯",summer:true},
+     {ic:"sun",name:"Secret Lagoon（Flúðir）",desc:"最古老天然溫泉池，比藍湖便宜且更天然",summer:true},
+     {ic:"n",name:"Dyrhólaey 拱門岩",desc:"海雀觀察點，5–8 月繁殖季最佳"}
+   ],
+   restaurants:[
+     {ico:"rs",name:"Fjörubordið（Stokkseyri）",desc:"冰島最出名龍蝦餐廳，Selfoss 南 15 分鐘，必訂位",price:"$$$",must:true},
+     {ico:"rs",name:"Fröken Selfoss",desc:"市中心正宗冰島料理，羊肉和龍蝦都超推",price:"$$",must:true},
+     {ico:"rs",name:"Fridheimar 溫室餐廳",desc:"番茄農場裡用餐，番茄湯超神",price:"$$"},
+     {ico:"rs",name:"Sudur Vík（Vík）",desc:"黑沙灘後必吃，北極炭烤魚 + 招牌布朗尼",price:"$$"}
+   ]}
+];
+
+let active=null,mainTab='stops',subTab={};
+
+function switchMain(t){
+  mainTab=t;
+  document.querySelectorAll('.main-tab').forEach((el,i)=>el.classList.toggle('active',['stops','tips'][i]===t));
+  document.getElementById('stops-section').style.display=t==='stops'?'':'none';
+  document.getElementById('tips-section').style.display=t==='tips'?'':'none';
+}
+
+function sel(i){
+  active=active===i?null:i;
+  if(active!==null && !subTab[active]) subTab[active]='sights';
+  renderGrid();renderDetail();
+}
+
+function switchSub(i,t){
+  subTab[i]=t;
+  document.querySelectorAll(`.stab-${i}`).forEach(el=>el.classList.toggle('active',el.dataset.t===t));
+  document.querySelectorAll(`.spanel-${i}`).forEach(el=>el.classList.toggle('visible',el.dataset.t===t));
+}
+
+function renderGrid(){
+  document.getElementById('stops-grid').innerHTML=stops.map((s,i)=>`
+    <div class="stop-card ${active===i?'active':''}" onclick="sel(${i})">
+      <div class="day-lbl">${s.dates}</div>
+      <div class="city-nm">${s.city}</div>
+      <div class="sub">${s.nights} · ${s.sights.filter(x=>x.summer).length}夏限定 · ${s.restaurants.filter(x=>x.must).length}必吃</div>
+    </div>`).join('');
+}
+
+function renderDetail(){
+  const panel=document.getElementById('detail');
+  if(active===null){panel.classList.remove('visible');return;}
+  panel.classList.add('visible');
+  const s=stops[active];const i=active;
+  const st=subTab[i]||'sights';
+
+  const roomsHTML=s.rooms.map(r=>`
+    <div class="room-row">
+      ${s.rooms.length>1?`<div class="room-sub" style="font-size:10px">${r.label}</div>`:''}
+      <div class="room-addr">${r.addr}</div>
+      ${r.beds!=='待確認'?`<div class="room-sub">${r.beds}</div>`:''}
+      <span class="btag">${r.booker} 代訂</span>
+    </div>`).join('');
+
+  const sightsHTML=s.sights.map(sg=>`
+    <div class="row-item">
+      <div class="ico ${sg.ic}">${sg.ic==='w'?'〜':sg.ic==='g'?'△':sg.ic==='ic'?'❄':sg.ic==='sun'?'☀':sg.ic==='n'?'◆':sg.ic==='c'?'★':'●'}</div>
+      <div class="item-body">
+        <div class="iname">${sg.name}${sg.must?'<span class="must">必看</span>':''}${sg.summer?'<span class="summer">夏限定</span>':''}</div>
+        <div class="idesc">${sg.desc}</div>
+      </div>
+    </div>`).join('');
+
+  const restHTML=s.restaurants.map(r=>`
+    <div class="row-item">
+      <div class="ico rs">♨</div>
+      <div class="item-body">
+        <div class="iname">${r.name}${r.must?'<span class="must">必吃</span>':''}<span class="price">${r.price}</span></div>
+        <div class="idesc">${r.desc}</div>
+      </div>
+    </div>`).join('');
+
+  panel.innerHTML=`
+    <div class="detail-hdr">
+      <div class="dot">${i+1}</div>
+      <div><div class="dtitle">${s.city}</div><div class="ddate">${s.dates} · ${s.nights}</div></div>
+    </div>
+    <div class="sub-tabs">
+      <div class="sub-tab stab-${i} ${st==='sights'?'active':''}" data-t="sights" onclick="switchSub(${i},'sights')">景點行程</div>
+      <div class="sub-tab stab-${i} ${st==='rest'?'active':''}" data-t="rest" onclick="switchSub(${i},'rest')">餐廳推薦</div>
+      <div class="sub-tab stab-${i} ${st==='rooms'?'active':''}" data-t="rooms" onclick="switchSub(${i},'rooms')">住宿資訊</div>
+    </div>
+    <div class="sub-panel spanel-${i} ${st==='sights'?'visible':''}" data-t="sights">${sightsHTML}</div>
+    <div class="sub-panel spanel-${i} ${st==='rest'?'visible':''}" data-t="rest">${restHTML}</div>
+    <div class="sub-panel spanel-${i} ${st==='rooms'?'visible':''}" data-t="rooms">${roomsHTML}</div>
+    <div class="note-bar">${s.note}</div>
+  `;
+}
+
+renderGrid();
+</script>
